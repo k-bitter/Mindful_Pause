@@ -964,3 +964,69 @@ body.evening .contact-header-strip {
     width: 1px; height: 32px;
     background: var(--section-border);
 }
+
+/* ─────────────────────────────────────────
+   POLISH — page header curved bottom
+───────────────────────────────────────── */
+.page-header {
+    border-radius: 0 0 24px 24px;
+    margin-bottom: 4px;
+}
+
+/* ─────────────────────────────────────────
+   POLISH — page fade transition
+───────────────────────────────────────── */
+@keyframes page-fade-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.page-enter {
+    animation: page-fade-in 0.3s ease forwards;
+}
+
+/* ─────────────────────────────────────────
+   POLISH — timer glow when running
+───────────────────────────────────────── */
+.ring-fill.glowing {
+    filter: url(#ring-glow);
+}
+
+@keyframes ring-complete-pulse {
+    0%   { stroke-width: 6; opacity: 1; }
+    50%  { stroke-width: 12; opacity: 0.7; }
+    100% { stroke-width: 6; opacity: 1; }
+}
+
+.ring-fill.complete-pulse {
+    animation: ring-complete-pulse 0.6s ease 3;
+}
+
+/* ─────────────────────────────────────────
+   POLISH — splash longer fade
+───────────────────────────────────────── */
+.splash {
+    transition: opacity 0.9s ease;
+}
+
+/* ─────────────────────────────────────────
+   POLISH — history empty state
+───────────────────────────────────────── */
+.calendar-empty {
+    width: 100%;
+    padding: 32px 24px;
+    text-align: center;
+    display: flex; flex-direction: column;
+    align-items: center; gap: 10px;
+}
+
+.calendar-empty-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem; font-weight: 300;
+    color: var(--text-secondary);
+}
+
+.calendar-empty-sub {
+    font-size: 0.78rem; color: var(--text-muted);
+    line-height: 1.6; letter-spacing: 0.02em;
+}
