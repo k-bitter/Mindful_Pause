@@ -364,6 +364,8 @@ function pickAudio(value, btn) {
     selectedAudio = value;
     document.querySelectorAll('[data-audio]').forEach(b => b.classList.remove('option-active'));
     btn.classList.add('option-active');
+    const hint = document.getElementById('headphones-hint');
+    if (hint) hint.classList.toggle('hidden', value !== 'audio8d');
     checkCanStart();
 }
 function checkCanStart() {
@@ -376,7 +378,7 @@ function startSession() {
     document.getElementById('session-running').classList.remove('hidden');
     const labels = { none:'', rain:'🌧 Rain', windchimes:'🎐 Chimes', waves:'🌊 Waves',
         bowl:'🎵 Bowl', forest:'🌲 Forest', brownnoise:'🌫 Brown Noise',
-        ocean:'🐚 Ocean', hz432:'🎶 432hz', fireplace:'🔥 Fireplace', audio8d:'🎧 8D Audio' };
+        ocean:'🐚 Ocean', thunder:'⛈ Thunder', gentlewind:'🍃 Gentle Wind', audio8d:'🎧 8D Audio' };
     const audioEl = document.getElementById('audio-indicator');
     if (audioEl) audioEl.innerText = labels[selectedAudio] || '';
     startTimer(selectedDuration, selectedAudio);
@@ -448,7 +450,7 @@ function showSessionComplete(seconds, audioType) {
     const mins    = Math.floor(seconds / 60);
     const aLabels = { none:'No audio', rain:'🌧 Rain', windchimes:'🎐 Chimes', waves:'🌊 Waves',
         bowl:'🎵 Bowl', forest:'🌲 Forest', brownnoise:'🌫 Brown Noise',
-        ocean:'🐚 Ocean', hz432:'🎶 432hz', fireplace:'🔥 Fireplace', audio8d:'🎧 8D Audio' };
+        ocean:'🐚 Ocean', thunder:'⛈ Thunder', gentlewind:'🍃 Gentle Wind', audio8d:'🎧 8D Audio' };
     detail.innerText = mins + ' min session · ' + (aLabels[audioType] || '');
     overlay.classList.remove('hidden');
     requestAnimationFrame(() => { overlay.classList.add('visible'); ring.classList.add('animate'); });
@@ -492,7 +494,7 @@ function startAmbient(type) {
         ambientCtx = new (window.AudioContext || window.webkitAudioContext)();
         const fns  = { rain: startRain, windchimes: startWindchimes, waves: startWaves,
                        bowl: startBowl, forest: startForest, brownnoise: startBrownNoise,
-                       ocean: startOcean, hz432: start432hz, fireplace: startFireplace, audio8d: start8D };
+                       ocean: startOcean, thunder: startThunder, gentlewind: startGentleWind, audio8d: start8D };
         if (fns[type]) fns[type](ambientCtx);
     } catch(e) {}
 }
@@ -522,8 +524,16 @@ function startRain(ctx) {
     src.start(); ambientSource = src;
 }
 
-/* Wind chimes */
+/* Wind chimes — spatially panned */
 function startWindchimes(ctx) {
+    // Slowly rotating panner — chimes drift left to right
+    const panner = ctx.createStereoPanner();
+    panner.connect(ctx.destination);
+    const lfo  = ctx.createOscillator(); lfo.type = 'sine'; lfo.frequency.value = 1/16;
+    const lfoG = ctx.createGain(); lfoG.gain.value = 0.9;
+    lfo.connect(lfoG); lfoG.connect(panner.pan);
+    lfo.start(); ambientLfo = lfo;
+
     function schedule() {
         windchimeTimeout = setTimeout(() => {
             if (!ambientCtx) return;
@@ -531,10 +541,12 @@ function startWindchimes(ctx) {
             const count = Math.random() > 0.55 ? 2 : 1;
             for (let n = 0; n < count; n++) {
                 const osc = ctx.createOscillator(), gain = ctx.createGain();
-                osc.connect(gain); gain.connect(ctx.destination);
-                osc.type = 'sine'; osc.frequency.value = freqs[Math.floor(Math.random() * freqs.length)];
+                osc.connect(gain); gain.connect(panner);
+                osc.type = 'sine';
+                osc.frequency.value = freqs[Math.floor(Math.random() * freqs.length)];
                 const t = ctx.currentTime + n * 0.16;
-                gain.gain.setValueAtTime(0, t); gain.gain.linearRampToValueAtTime(0.13, t + 0.02);
+                gain.gain.setValueAtTime(0, t);
+                gain.gain.linearRampToValueAtTime(0.13, t + 0.02);
                 gain.gain.exponentialRampToValueAtTime(0.001, t + 2.8);
                 osc.start(t); osc.stop(t + 3.0);
             }
@@ -556,19 +568,41 @@ function startWaves(ctx) {
     ambientSource = src; ambientLfo = lfo;
 }
 
-/* Tibetan Bowl */
+/* Tibetan Bowl — spatially rotating */
 function startBowl(ctx) {
+    const panner = ctx.createStereoPanner();
+    const gain   = ctx.createGain();
+    panner.connect(gain); gain.connect(ctx.destination);
+    gain.gain.value = 0.2;
+    // Slow rotation LFO — one cycle every ~12s, feels like the bowl is moving around you
+    const lfo  = ctx.createOscillator(); lfo.type = 'sine'; lfo.frequency.value = 1/12;
+    const lfoG = ctx.createGain(); lfoG.gain.value = 0.8;
+    lfo.connect(lfoG); lfoG.connect(panner.pan);
+    lfo.start(); ambientLfo = lfo;
+
     function strike() {
+        if (!ambientCtx) return;
         const freqs = [196, 220, 261.6, 293.7];
         const freq  = freqs[Math.floor(Math.random() * freqs.length)];
-        const osc   = ctx.createOscillator(), gain = ctx.createGain();
-        osc.connect(gain); gain.connect(ctx.destination);
+        const osc   = ctx.createOscillator();
+        osc.connect(panner);
         osc.type = 'sine'; osc.frequency.value = freq;
         const t = ctx.currentTime;
-        gain.gain.setValueAtTime(0, t); gain.gain.linearRampToValueAtTime(0.2, t + 0.04);
-        gain.gain.exponentialRampToValueAtTime(0.001, t + 5.0);
-        osc.start(t); osc.stop(t + 5.2);
-        bowlTimeout = setTimeout(strike, 6000 + Math.random() * 4000);
+        const g = ctx.createGain();
+        osc.connect(g); g.connect(panner);
+        g.gain.setValueAtTime(0, t);
+        g.gain.linearRampToValueAtTime(0.25, t + 0.04);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 5.5);
+        osc.start(t); osc.stop(t + 5.7);
+        // Add subtle harmonic
+        const osc2 = ctx.createOscillator(), g2 = ctx.createGain();
+        osc2.connect(g2); g2.connect(panner);
+        osc2.type = 'sine'; osc2.frequency.value = freq * 2.76;
+        g2.gain.setValueAtTime(0, t);
+        g2.gain.linearRampToValueAtTime(0.07, t + 0.04);
+        g2.gain.exponentialRampToValueAtTime(0.001, t + 3.5);
+        osc2.start(t); osc2.stop(t + 3.7);
+        bowlTimeout = setTimeout(strike, 7000 + Math.random() * 4000);
     }
     strike();
 }
@@ -631,45 +665,45 @@ function startOcean(ctx) {
     ambientSource = src; ambientLfo = lfo;
 }
 
-/* 432hz */
-function start432hz(ctx) {
-    const osc  = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain); gain.connect(ctx.destination);
-    osc.type = 'sine'; osc.frequency.value = 432;
-    gain.gain.setValueAtTime(0, ctx.currentTime);
-    gain.gain.linearRampToValueAtTime(0.08, ctx.currentTime + 2);
-    osc.start(); ambientSource = osc; ambientLfo = null;
-    // Also add a gentle harmonic
-    const osc2 = ctx.createOscillator(), g2 = ctx.createGain();
-    osc2.connect(g2); g2.connect(ctx.destination);
-    osc2.type = 'sine'; osc2.frequency.value = 864;
-    g2.gain.setValueAtTime(0, ctx.currentTime);
-    g2.gain.linearRampToValueAtTime(0.03, ctx.currentTime + 2);
-    osc2.start();
+/* Thunder */
+function startThunder(ctx) {
+    // Deep rolling rumble base
+    const src = makeNoise(ctx, 4);
+    const flt = ctx.createBiquadFilter(); flt.type = 'lowpass'; flt.frequency.value = 180;
+    const main = ctx.createGain(); main.gain.value = 0.0;
+    src.connect(flt); flt.connect(main); main.connect(ctx.destination);
+    src.start(); ambientSource = src;
+    // Slow LFO for rolling thunder swell
+    const lfo  = ctx.createOscillator(); lfo.type = 'sine'; lfo.frequency.value = 1/12;
+    const lfoG = ctx.createGain(); lfoG.gain.value = 0.12;
+    lfo.connect(lfoG); lfoG.connect(main.gain);
+    main.gain.setValueAtTime(0.08, ctx.currentTime);
+    lfo.start(); ambientLfo = lfo;
+    // Distant rain layer
+    const rain = makeNoise(ctx, 2);
+    const rflt = ctx.createBiquadFilter(); rflt.type = 'bandpass'; rflt.frequency.value = 1000; rflt.Q.value = 0.4;
+    const rgain = ctx.createGain(); rgain.gain.value = 0.04;
+    rain.connect(rflt); rflt.connect(rgain); rgain.connect(ctx.destination);
+    rain.start();
 }
 
-/* Fireplace */
-function startFireplace(ctx) {
-    // Low rumble base
-    const src = makeNoise(ctx, 2);
-    const flt = ctx.createBiquadFilter(); flt.type = 'lowpass'; flt.frequency.value = 250;
-    const gain = ctx.createGain(); gain.gain.value = 0.06;
-    src.connect(flt); flt.connect(gain); gain.connect(ctx.destination);
-    src.start(); ambientSource = src;
-    // Random crackles
-    function crackle() {
-        if (!ambientCtx) return;
-        const osc = ctx.createOscillator(), g = ctx.createGain();
-        osc.connect(g); g.connect(ctx.destination);
-        osc.type = 'sawtooth'; osc.frequency.value = 80 + Math.random() * 120;
-        const t = ctx.currentTime;
-        g.gain.setValueAtTime(0.08, t);
-        g.gain.exponentialRampToValueAtTime(0.001, t + 0.05 + Math.random() * 0.1);
-        osc.start(t); osc.stop(t + 0.2);
-        fireplaceTimeout = setTimeout(crackle, 200 + Math.random() * 600);
-    }
-    crackle();
+/* Gentle Wind */
+function startGentleWind(ctx) {
+    const src = makeNoise(ctx, 3);
+    const flt = ctx.createBiquadFilter(); flt.type = 'bandpass'; flt.frequency.value = 600; flt.Q.value = 0.3;
+    const main = ctx.createGain(); main.gain.value = 0.05;
+    // Very slow LFO — wind gusting gently
+    const lfo  = ctx.createOscillator(); lfo.type = 'sine'; lfo.frequency.value = 1/18;
+    const lfoG = ctx.createGain(); lfoG.gain.value = 0.04;
+    // Second LFO for subtle pitch movement
+    const lfo2  = ctx.createOscillator(); lfo2.type = 'sine'; lfo2.frequency.value = 1/7;
+    const lfo2G = ctx.createGain(); lfo2G.gain.value = 80;
+    lfo2.connect(lfo2G); lfo2G.connect(flt.frequency);
+    src.connect(flt); flt.connect(main);
+    lfo.connect(lfoG); lfoG.connect(main.gain);
+    main.connect(ctx.destination);
+    src.start(); lfo.start(); lfo2.start();
+    ambientSource = src; ambientLfo = lfo;
 }
 
 /* 8D Audio — rotating spatial tone */
