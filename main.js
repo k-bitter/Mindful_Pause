@@ -179,6 +179,7 @@ function startTimer(seconds, audioType) {
     circle.style.strokeDashoffset = CIRCUMFERENCE;
 
     if (audioType && audioType !== 'none') startAmbient(audioType);
+    startTimerGlow();
 
     timerInterval = setInterval(() => {
         timeLeft--;
@@ -199,6 +200,7 @@ function startTimer(seconds, audioType) {
 function stopTimer() {
     clearInterval(timerInterval);
     stopAmbient();
+    stopTimerGlow();
     document.getElementById('progress-circle').style.strokeDashoffset = CIRCUMFERENCE;
     document.getElementById('timer-display').innerText = '00:00';
     resetSessionSetup();
@@ -209,6 +211,8 @@ function onSessionComplete(seconds, audioType) {
     localStorage.setItem('sessions', count);
     document.getElementById('session-count').innerText = count;
     logSession(seconds, audioType);
+    stopTimerGlow();
+    playCompletePulse();
     showSessionComplete(seconds, audioType);
     if (getSetting('sound')) playChime();
     resetSessionSetup();
@@ -384,6 +388,7 @@ function showPage(id, btn) {
     if (id === 'calendar-view') renderCalendar();
     if (id === 'sessions-view') startIdlePulse();
     else stopIdlePulse();
+    triggerPageEnter(id);
 }
 
 /* ═══════════════════════════════════════════
@@ -515,6 +520,7 @@ function renderCalendar() {
 
     updateStreakBanner();
     updateMonthlySummary();
+    updateEmptyState(year, month);
 
     ['S','M','T','W','T','F','S'].forEach(d => {
         const h = document.createElement('div'); h.className = 'day-header'; h.innerText = d; grid.appendChild(h);
@@ -621,6 +627,8 @@ document.addEventListener('DOMContentLoaded', () => {
     initSplash();
     initAffirmSwipe();
     updateBookmarkBtn(document.getElementById('affirmation').innerText);
+    updateGreeting();
+    setInterval(updateGreeting, 60000);
 });
 
 document.getElementById('session-count').innerText = localStorage.getItem('sessions') || 0;
@@ -771,15 +779,14 @@ function initSplash() {
     if (!splash) return;
     setTimeout(() => {
         splash.classList.add('fade-out');
-        // Trigger entrance animation on affirmation card
         const card = document.getElementById('affirmation-card');
         if (card) {
             card.classList.remove('affirm-enter');
             void card.offsetWidth;
             card.classList.add('affirm-enter');
         }
-        setTimeout(() => splash.classList.add('gone'), 650);
-    }, 1800);
+        setTimeout(() => splash.classList.add('gone'), 950);
+    }, 2400);
 }
 
 /* ═══════════════════════════════════════════
@@ -967,4 +974,71 @@ function attachLongPress(cell, dateKey) {
 ═══════════════════════════════════════════ */
 function moodHaptic() {
     if ('vibrate' in navigator) navigator.vibrate(18);
+}
+
+/* ═══════════════════════════════════════════
+   POLISH — time-aware greeting
+═══════════════════════════════════════════ */
+function updateGreeting() {
+    const el   = document.getElementById('affirm-greeting');
+    if (!el) return;
+    const hour = new Date().getHours();
+    let greeting;
+    if      (hour >= 5  && hour < 12) greeting = 'good morning';
+    else if (hour >= 12 && hour < 17) greeting = 'good afternoon';
+    else if (hour >= 17 && hour < 21) greeting = 'good evening';
+    else                               greeting = 'rest & reflect';
+    el.innerText = greeting;
+}
+
+/* ═══════════════════════════════════════════
+   POLISH — page fade transition
+═══════════════════════════════════════════ */
+function triggerPageEnter(id) {
+    const page = document.getElementById(id);
+    if (!page) return;
+    page.classList.remove('page-enter');
+    void page.offsetWidth;
+    page.classList.add('page-enter');
+    page.addEventListener('animationend', () => page.classList.remove('page-enter'), { once: true });
+}
+
+/* ═══════════════════════════════════════════
+   POLISH — timer glow & complete pulse
+═══════════════════════════════════════════ */
+function startTimerGlow() {
+    document.getElementById('progress-circle')?.classList.add('glowing');
+}
+
+function stopTimerGlow() {
+    document.getElementById('progress-circle')?.classList.remove('glowing');
+}
+
+function playCompletePulse() {
+    const circle = document.getElementById('progress-circle');
+    if (!circle) return;
+    circle.classList.add('complete-pulse');
+    circle.addEventListener('animationend', () => circle.classList.remove('complete-pulse'), { once: true });
+}
+
+/* ═══════════════════════════════════════════
+   POLISH — history empty state
+═══════════════════════════════════════════ */
+function updateEmptyState(year, month) {
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const sessions    = JSON.parse(localStorage.getItem('session-log') || '[]');
+    const prefix      = year + '-' + String(month + 1).padStart(2, '0') + '-';
+
+    const hasSessions = sessions.some(s => s.date.startsWith(prefix));
+    let hasMoods = false;
+    for (let d = 1; d <= daysInMonth; d++) {
+        const key = prefix + String(d).padStart(2, '0');
+        if (getMoodsForDate(key).length > 0) { hasMoods = true; break; }
+    }
+
+    const isEmpty  = !hasSessions && !hasMoods;
+    const grid     = document.getElementById('calendar-grid');
+    const emptyEl  = document.getElementById('calendar-empty');
+    if (grid)    grid.classList.toggle('hidden', isEmpty);
+    if (emptyEl) emptyEl.classList.toggle('hidden', !isEmpty);
 }
