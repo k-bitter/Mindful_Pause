@@ -180,7 +180,11 @@ body {
 }
 .option-chip:active { transform: scale(0.96); }
 .option-chip.option-active { background: var(--accent); border-color: var(--accent); color: #FAF5F0; }
-.headphone-hint { font-size: 0.65rem; opacity: 0.7; }
+.headphones-hint {
+    font-size: 0.72rem; letter-spacing: 0.04em;
+    color: var(--accent); text-align: center;
+    padding: 4px 0; animation: page-fade-in 0.3s ease;
+}
 .custom-timer-row { display: flex; align-items: center; gap: 10px; }
 .custom-input {
     font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 300;
