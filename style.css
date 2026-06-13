@@ -277,7 +277,7 @@ body {
 }
 
 .affirmation-card {
-    width: 100%; min-height: 42vh; min-height: 42dvh;
+    width: 100%; min-height: 32vh; min-height: 32dvh;
     background: linear-gradient(135deg, var(--card-bg) 0%, var(--surface) 50%, var(--card-bg) 100%);
     background-size: 200% 200%;
     animation: card-shimmer 8s ease infinite, card-breathe 6s ease-in-out infinite;
@@ -489,7 +489,7 @@ body {
 ───────────────────────────────────────── */
 .contact-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; opacity: 0; display: none; transition: opacity 0.3s ease; }
 .contact-overlay.drawer-visible { opacity: 1; }
-.contact-drawer { position: absolute; top:0; left:0; bottom:0; width: 82%; max-width: 320px; background: var(--bg); transform: translateX(-100%); transition: transform 0.32s cubic-bezier(0.4,0,0.2,1), background 0.8s ease; display: flex; flex-direction: column; overflow-y: auto; }
+.contact-drawer { position: absolute; top:0; right:0; bottom:0; width: 82%; max-width: 320px; background: var(--bg); transform: translateX(100%); transition: transform 0.32s cubic-bezier(0.4,0,0.2,1), background 0.8s ease; display: flex; flex-direction: column; overflow-y: auto; }
 .contact-overlay.drawer-visible .contact-drawer { transform: translateX(0); }
 .contact-header-strip {
     background: linear-gradient(160deg, rgba(184,92,110,0.82) 0%, rgba(184,92,110,0.65) 100%),
