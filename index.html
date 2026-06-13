@@ -11,7 +11,7 @@
 </head>
 <body>
 
-    <!-- ── Splash screen ── -->
+    <!-- ── Splash ── -->
     <div id="splash" class="splash">
         <p class="splash-eyebrow">welcome to</p>
         <h1 class="splash-title">Mindful Pause</h1>
@@ -29,34 +29,10 @@
             </div>
             <div class="contact-body">
                 <div class="contact-details">
-                    <div class="contact-row">
-                        <span class="contact-icon">✦</span>
-                        <div>
-                            <p class="contact-detail-label">Studio</p>
-                            <p class="contact-detail-value">Mindful Pause Studio</p>
-                        </div>
-                    </div>
-                    <div class="contact-row">
-                        <span class="contact-icon">◎</span>
-                        <div>
-                            <p class="contact-detail-label">Address</p>
-                            <p class="contact-detail-value">Keizersgracht 123<br>1015 CJ Amsterdam<br>Netherlands</p>
-                        </div>
-                    </div>
-                    <div class="contact-row">
-                        <span class="contact-icon">◷</span>
-                        <div>
-                            <p class="contact-detail-label">Phone</p>
-                            <p class="contact-detail-value">+31 20 123 4567</p>
-                        </div>
-                    </div>
-                    <div class="contact-row">
-                        <span class="contact-icon">◫</span>
-                        <div>
-                            <p class="contact-detail-label">Email</p>
-                            <p class="contact-detail-value">liana@mindfulpause.nl</p>
-                        </div>
-                    </div>
+                    <div class="contact-row"><span class="contact-icon">✦</span><div><p class="contact-detail-label">Studio</p><p class="contact-detail-value">Mindful Pause Studio</p></div></div>
+                    <div class="contact-row"><span class="contact-icon">◎</span><div><p class="contact-detail-label">Address</p><p class="contact-detail-value">Keizersgracht 123<br>1015 CJ Amsterdam<br>Netherlands</p></div></div>
+                    <div class="contact-row"><span class="contact-icon">◷</span><div><p class="contact-detail-label">Phone</p><p class="contact-detail-value">+31 20 123 4567</p></div></div>
+                    <div class="contact-row"><span class="contact-icon">◫</span><div><p class="contact-detail-label">Email</p><p class="contact-detail-value">liana@mindfulpause.nl</p></div></div>
                 </div>
             </div>
         </div>
@@ -64,13 +40,57 @@
 
     <div id="content">
 
+        <!-- ── Affirmations (home) ── -->
+        <div id="affirmations-view" class="page affirmations-page">
+            <div class="page-header">
+                <p class="eyebrow" id="affirm-greeting">breathe &amp; reflect</p>
+                <h1 class="page-title">Affirmations</h1>
+            </div>
+
+            <!-- Today's affirmation -->
+            <div class="today-affirm-wrap">
+                <p class="today-label">✦ Today's affirmation</p>
+                <p id="today-affirmation" class="today-text"></p>
+            </div>
+
+            <!-- Category filters -->
+            <div class="affirm-categories">
+                <button class="cat-btn active" data-cat="all"     onclick="setCategory('all',this)">All</button>
+                <button class="cat-btn"        data-cat="morning" onclick="setCategory('morning',this)">Morning</button>
+                <button class="cat-btn"        data-cat="evening" onclick="setCategory('evening',this)">Evening</button>
+                <button class="cat-btn"        data-cat="stress"  onclick="setCategory('stress',this)">Calm</button>
+                <button class="cat-btn"        data-cat="energy"  onclick="setCategory('energy',this)">Energy</button>
+                <button class="cat-btn"        data-cat="saved"   onclick="setCategory('saved',this)">★ Saved</button>
+            </div>
+
+            <!-- Main card -->
+            <div class="affirmation-card" id="affirmation-card" onclick="newAffirmation()">
+                <div class="card-grain"></div>
+                <button class="bookmark-btn" id="bookmark-btn" onclick="event.stopPropagation(); toggleFavourite()">☆</button>
+                <span class="quote-mark">"</span>
+                <p id="affirmation">Breathe in, breathe out.</p>
+            </div>
+
+            <!-- Controls row -->
+            <div class="affirm-controls">
+                <button class="affirm-ctrl-btn" id="auto-btn" onclick="toggleAutoAdvance()" title="Auto-advance">
+                    <span id="auto-icon">▷</span>
+                    <span class="affirm-ctrl-label">Auto</span>
+                </button>
+                <button class="affirm-ctrl-btn next-btn" onclick="newAffirmation()">Next →</button>
+                <button class="affirm-ctrl-btn" onclick="shareAffirmation()" title="Share">
+                    <span>↗</span>
+                    <span class="affirm-ctrl-label">Share</span>
+                </button>
+            </div>
+        </div>
+
         <!-- ── Sessions ── -->
         <div id="sessions-view" class="page hidden">
             <div class="page-header">
                 <p class="eyebrow">your practice</p>
                 <h1 class="page-title">Sessions</h1>
             </div>
-
             <div class="timer-wrapper">
                 <svg width="210" height="210" class="progress-ring">
                     <defs>
@@ -85,62 +105,46 @@
                 </svg>
                 <div id="timer-display">00:00</div>
             </div>
-
             <div id="session-setup" class="session-setup">
                 <div class="setup-section">
                     <p class="setup-label">Duration</p>
                     <div class="setup-options" id="duration-options">
-                        <button class="option-chip" data-value="180"    onclick="pickDuration(180, this)">3 min</button>
-                        <button class="option-chip" data-value="300"    onclick="pickDuration(300, this)">5 min</button>
-                        <button class="option-chip" data-value="600"    onclick="pickDuration(600, this)">10 min</button>
-                        <button class="option-chip" data-value="custom" onclick="pickDuration('custom', this)">Custom</button>
+                        <button class="option-chip" data-value="180"    onclick="pickDuration(180,this)">3 min</button>
+                        <button class="option-chip" data-value="300"    onclick="pickDuration(300,this)">5 min</button>
+                        <button class="option-chip" data-value="600"    onclick="pickDuration(600,this)">10 min</button>
+                        <button class="option-chip" data-value="custom" onclick="pickDuration('custom',this)">Custom</button>
                     </div>
                     <div id="custom-duration-row" class="custom-timer-row hidden">
                         <input id="custom-minutes" class="custom-input" type="number" min="1" max="120" placeholder="mins" />
                         <button class="option-chip" onclick="confirmCustomDuration()">Set</button>
                     </div>
                 </div>
-
                 <div id="audio-section" class="setup-section hidden">
                     <p class="setup-label">Audio</p>
-                    <div class="setup-options">
-                        <button class="option-chip" data-audio="none"       onclick="pickAudio('none', this)">None</button>
-                        <button class="option-chip" data-audio="rain"       onclick="pickAudio('rain', this)">🌧 Rain</button>
-                        <button class="option-chip" data-audio="windchimes" onclick="pickAudio('windchimes', this)">🎐 Chimes</button>
-                        <button class="option-chip" data-audio="breathing"  onclick="pickAudio('breathing', this)">🌊 Waves</button>
+                    <div class="setup-options audio-grid">
+                        <button class="option-chip" data-audio="none"       onclick="pickAudio('none',this)">None</button>
+                        <button class="option-chip" data-audio="rain"       onclick="pickAudio('rain',this)">🌧 Rain</button>
+                        <button class="option-chip" data-audio="windchimes" onclick="pickAudio('windchimes',this)">🎐 Chimes</button>
+                        <button class="option-chip" data-audio="waves"      onclick="pickAudio('waves',this)">🌊 Waves</button>
+                        <button class="option-chip" data-audio="bowl"       onclick="pickAudio('bowl',this)">🎵 Bowl</button>
+                        <button class="option-chip" data-audio="forest"     onclick="pickAudio('forest',this)">🌲 Forest</button>
+                        <button class="option-chip" data-audio="brownnoise" onclick="pickAudio('brownnoise',this)">🌫 Brown Noise</button>
+                        <button class="option-chip" data-audio="ocean"      onclick="pickAudio('ocean',this)">🐚 Ocean</button>
+                        <button class="option-chip" data-audio="hz432"      onclick="pickAudio('hz432',this)">🎶 432hz</button>
+                        <button class="option-chip" data-audio="fireplace"  onclick="pickAudio('fireplace',this)">🔥 Fireplace</button>
+                        <button class="option-chip" data-audio="audio8d"    onclick="pickAudio('audio8d',this)">🎧 8D <span class="headphone-hint">headphones</span></button>
                     </div>
                 </div>
-
                 <button id="start-btn" class="start-session-btn hidden" onclick="startSession()">Begin Session</button>
             </div>
-
             <div id="session-running" class="session-running hidden">
                 <p id="audio-indicator" class="audio-indicator"></p>
                 <button class="pill-btn stop-btn" onclick="stopTimer()">Stop</button>
             </div>
-
             <div class="session-stat">
                 <span class="stat-num" id="session-count">0</span>
                 <span class="stat-label">sessions completed</span>
             </div>
-        </div>
-
-        <!-- ── Affirmations ── -->
-        <div id="affirmations-view" class="page affirmations-page">
-            <div class="page-header">
-                <p class="eyebrow" id="affirm-greeting">breathe & reflect</p>
-                <h1 class="page-title">Affirmations</h1>
-            </div>
-            <div class="affirmation-card" id="affirmation-card" onclick="newAffirmation()" style="cursor:pointer">
-                <button class="bookmark-btn" id="bookmark-btn" onclick="event.stopPropagation(); toggleFavourite()" title="Save to favourites">☆</button>
-                <span class="quote-mark">"</span>
-                <p id="affirmation">Breathe in, breathe out.</p>
-            </div>
-            <div class="affirm-toggle-row">
-                <button class="affirm-filter-btn active" id="filter-all" onclick="setAffirmFilter('all', this)">All</button>
-                <button class="affirm-filter-btn" id="filter-favs" onclick="setAffirmFilter('favs', this)">★ Saved</button>
-            </div>
-            <button class="next-btn" onclick="newAffirmation()">Next →</button>
         </div>
 
         <!-- ── History ── -->
@@ -149,25 +153,23 @@
                 <p class="eyebrow">your journey</p>
                 <h1 class="page-title">History</h1>
             </div>
-
-            <!-- Month nav -->
             <div class="month-nav">
                 <button class="month-arrow" onclick="changeMonth(-1)">‹</button>
                 <p id="calendar-label" class="calendar-label"></p>
                 <button class="month-arrow" onclick="changeMonth(1)">›</button>
             </div>
-
-            <!-- Streak -->
             <div id="streak-banner" class="streak-banner hidden"></div>
-            <!-- Monthly summary -->
             <div id="monthly-summary" class="monthly-summary hidden"></div>
-
             <p id="mood-hint" class="mood-hint">Tap to toggle — select all that apply today</p>
             <div class="mood-selectors">
-                <button class="mood-btn" data-mood="Joyful"   onclick="toggleMood('Joyful')"><span class="mood-icon">✨</span><span class="mood-name">Joyful</span></button>
-                <button class="mood-btn" data-mood="Balanced" onclick="toggleMood('Balanced')"><span class="mood-icon">☀️</span><span class="mood-name">Balanced</span></button>
-                <button class="mood-btn" data-mood="Stressed" onclick="toggleMood('Stressed')"><span class="mood-icon">🌩️</span><span class="mood-name">Stressed</span></button>
-                <button class="mood-btn" data-mood="Tired"    onclick="toggleMood('Tired')"><span class="mood-icon">🌙</span><span class="mood-name">Tired</span></button>
+                <button class="mood-btn" data-mood="Joyful"    onclick="toggleMood('Joyful')">   <span class="mood-icon">✨</span><span class="mood-name">Joyful</span></button>
+                <button class="mood-btn" data-mood="Grateful"  onclick="toggleMood('Grateful')"> <span class="mood-icon">🌸</span><span class="mood-name">Grateful</span></button>
+                <button class="mood-btn" data-mood="Energised" onclick="toggleMood('Energised')"><span class="mood-icon">💫</span><span class="mood-name">Energised</span></button>
+                <button class="mood-btn" data-mood="Balanced"  onclick="toggleMood('Balanced')"> <span class="mood-icon">☀️</span><span class="mood-name">Balanced</span></button>
+                <button class="mood-btn" data-mood="Calm"      onclick="toggleMood('Calm')">     <span class="mood-icon">🌿</span><span class="mood-name">Calm</span></button>
+                <button class="mood-btn" data-mood="Tired"     onclick="toggleMood('Tired')">    <span class="mood-icon">🌙</span><span class="mood-name">Tired</span></button>
+                <button class="mood-btn" data-mood="Anxious"   onclick="toggleMood('Anxious')">  <span class="mood-icon">😰</span><span class="mood-name">Anxious</span></button>
+                <button class="mood-btn" data-mood="Stressed"  onclick="toggleMood('Stressed')"> <span class="mood-icon">🌩️</span><span class="mood-name">Stressed</span></button>
             </div>
             <div id="calendar-grid" class="calendar-grid"></div>
             <div id="calendar-empty" class="calendar-empty hidden">
@@ -183,14 +185,10 @@
                 <p class="eyebrow">preferences</p>
                 <h1 class="page-title">Settings</h1>
             </div>
-
             <div class="settings-section">
                 <p class="settings-section-title">Appearance</p>
                 <div class="settings-row">
-                    <div class="settings-row-info">
-                        <span class="settings-row-label">Theme</span>
-                        <span class="settings-row-sub">Auto switches at 6 pm &amp; 7 am</span>
-                    </div>
+                    <div class="settings-row-info"><span class="settings-row-label">Theme</span><span class="settings-row-sub">Auto switches at 6 pm &amp; 7 am</span></div>
                     <div class="theme-switcher">
                         <button id="theme-day-btn"     class="theme-chip" onclick="setTheme('day')">Day</button>
                         <button id="theme-auto-btn"    class="theme-chip active" onclick="setTheme('auto')">Auto</button>
@@ -198,63 +196,36 @@
                     </div>
                 </div>
             </div>
-
             <div class="settings-section">
                 <p class="settings-section-title">Sound &amp; Haptics</p>
                 <div class="settings-row">
-                    <div class="settings-row-info">
-                        <span class="settings-row-label">Sound on complete</span>
-                        <span class="settings-row-sub">Gentle chime when session ends</span>
-                    </div>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="setting-sound" onchange="saveSetting('sound', this.checked)">
-                        <span class="toggle-track"><span class="toggle-thumb"></span></span>
-                    </label>
+                    <div class="settings-row-info"><span class="settings-row-label">Sound on complete</span><span class="settings-row-sub">Gentle chime when session ends</span></div>
+                    <label class="toggle-switch"><input type="checkbox" id="setting-sound" onchange="saveSetting('sound',this.checked)"><span class="toggle-track"><span class="toggle-thumb"></span></span></label>
                 </div>
                 <div class="settings-row">
-                    <div class="settings-row-info">
-                        <span class="settings-row-label">Vibration on complete</span>
-                        <span class="settings-row-sub">Haptic pulse when session ends</span>
-                    </div>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="setting-vibration" onchange="saveSetting('vibration', this.checked)">
-                        <span class="toggle-track"><span class="toggle-thumb"></span></span>
-                    </label>
+                    <div class="settings-row-info"><span class="settings-row-label">Vibration on complete</span><span class="settings-row-sub">Haptic pulse when session ends</span></div>
+                    <label class="toggle-switch"><input type="checkbox" id="setting-vibration" onchange="saveSetting('vibration',this.checked)"><span class="toggle-track"><span class="toggle-thumb"></span></span></label>
                 </div>
             </div>
-
             <div class="settings-section">
                 <p class="settings-section-title">Daily Reminder</p>
                 <div class="settings-row">
-                    <div class="settings-row-info">
-                        <span class="settings-row-label">Enable reminder</span>
-                        <span class="settings-row-sub">Browser notification each day</span>
-                    </div>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="setting-reminder" onchange="toggleReminder(this.checked)">
-                        <span class="toggle-track"><span class="toggle-thumb"></span></span>
-                    </label>
+                    <div class="settings-row-info"><span class="settings-row-label">Enable reminder</span><span class="settings-row-sub">Browser notification each day</span></div>
+                    <label class="toggle-switch"><input type="checkbox" id="setting-reminder" onchange="toggleReminder(this.checked)"><span class="toggle-track"><span class="toggle-thumb"></span></span></label>
                 </div>
                 <div id="reminder-time-row" class="settings-row reminder-time-row hidden">
-                    <div class="settings-row-info">
-                        <span class="settings-row-label">Reminder time</span>
-                    </div>
+                    <div class="settings-row-info"><span class="settings-row-label">Reminder time</span></div>
                     <input type="time" id="reminder-time" class="time-input" value="08:00" onchange="saveReminderTime(this.value)">
                 </div>
             </div>
-
             <div class="settings-section">
                 <p class="settings-section-title">Data</p>
                 <div class="settings-row">
-                    <div class="settings-row-info">
-                        <span class="settings-row-label">Clear all data</span>
-                        <span class="settings-row-sub">Removes sessions, moods &amp; preferences</span>
-                    </div>
+                    <div class="settings-row-info"><span class="settings-row-label">Clear all data</span><span class="settings-row-sub">Removes sessions, moods &amp; preferences</span></div>
                     <button class="clear-data-btn" onclick="confirmClearData()">Clear</button>
                 </div>
             </div>
-
-        </div><!-- /settings-view -->
+        </div>
 
     </div><!-- /content -->
 
@@ -273,7 +244,7 @@
         </div>
     </div>
 
-    <!-- ── Day Detail Bottom Sheet ── -->
+    <!-- ── Day detail sheet ── -->
     <div id="day-detail-overlay" class="day-detail-overlay" style="display:none" onclick="closeDayDetail()">
         <div class="day-detail-sheet" onclick="event.stopPropagation()">
             <div class="sheet-handle"></div>
@@ -288,30 +259,14 @@
 
     <!-- ── Nav ── -->
     <nav class="nav-bar">
-        <button class="nav-btn active" onclick="showPage('affirmations-view', this)">
-            <span class="nav-icon">✦</span>
-            <span class="nav-label">Affirm</span>
-        </button>
-        <button class="nav-btn" onclick="showPage('sessions-view', this)">
-            <span class="nav-icon">◎</span>
-            <span class="nav-label">Sessions</span>
-        </button>
-        <button class="nav-btn" onclick="showPage('calendar-view', this)">
-            <span class="nav-icon">◫</span>
-            <span class="nav-label">History</span>
-        </button>
-        <button class="nav-btn" onclick="openContact()">
-            <span class="nav-icon">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block">
-                    <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.27 9.09a19.79 19.79 0 01-3.07-8.67A2 2 0 012.18 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.72 6.72l1.56-1.56a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>
-                </svg>
-            </span>
+        <button class="nav-btn active" onclick="showPage('affirmations-view',this)"><span class="nav-icon">✦</span><span class="nav-label">Affirm</span></button>
+        <button class="nav-btn"        onclick="showPage('sessions-view',this)"><span class="nav-icon">◎</span><span class="nav-label">Sessions</span></button>
+        <button class="nav-btn"        onclick="showPage('calendar-view',this)"><span class="nav-icon">◫</span><span class="nav-label">History</span></button>
+        <button class="nav-btn"        onclick="openContact()">
+            <span class="nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.27 9.09a19.79 19.79 0 01-3.07-8.67A2 2 0 012.18 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.72 6.72l1.56-1.56a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg></span>
             <span class="nav-label">Contact</span>
         </button>
-        <button class="nav-btn" onclick="showPage('settings-view', this)">
-            <span class="nav-icon">⊙</span>
-            <span class="nav-label">Settings</span>
-        </button>
+        <button class="nav-btn" onclick="showPage('settings-view',this)"><span class="nav-icon">⊙</span><span class="nav-label">Settings</span></button>
     </nav>
 
     <script src="main.js"></script>
